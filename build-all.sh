@@ -76,7 +76,7 @@ fi
 # build boost
 
 echo "Downloading boost"
-test -f boost_${boost_version}.tar.bz2 || wget https://archives.boost.io/release/$(echo ${boost_version} | tr '_' '.')/source/boost_${boost_version}.tar.bz2
+test -f boost_${boost_version}.tar.bz2 || wget -q https://archives.boost.io/release/$(echo ${boost_version} | tr '_' '.')/source/boost_${boost_version}.tar.bz2
 test -d boost_${boost_version} || tar xfj boost_${boost_version}.tar.bz2
 cd boost_${boost_version}
 echo "Booststrapping boost"
@@ -89,14 +89,14 @@ cd -
 # setup cmake
 
 echo "Downloading cmake binaries"
-test -f cmake-${cmake_version}-linux-x86_64.tar.gz || wget https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.tar.gz
+test -f cmake-${cmake_version}-linux-x86_64.tar.gz || wget -q https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.tar.gz
 test -d cmake-${cmake_version}-linux-x86_64 || tar xfz cmake-${cmake_version}-linux-x86_64.tar.gz
 
 
 # build openssl
 
 echo "Downloading openssl"
-test -f openssl-${openssl_version}.tar.gz || wget https://github.com/openssl/openssl/releases/download/openssl-${openssl_version}/openssl-${openssl_version}.tar.gz
+test -f openssl-${openssl_version}.tar.gz || wget -q https://github.com/openssl/openssl/releases/download/openssl-${openssl_version}/openssl-${openssl_version}.tar.gz
 test -d openssl-${openssl_version} || tar xfz openssl-${openssl_version}.tar.gz
 cd openssl-${openssl_version}
 echo "Configuring openssl"
@@ -111,7 +111,7 @@ cd -
 # get cmangos sources
 
 echo "Downloading cmangos"
-test -f ${cmangos_name}.tar.gz || wget https://github.com/cmangos/mangos-classic/archive/refs/tags/latest.tar.gz -O ${cmangos_name}.tar.gz
+test -f ${cmangos_name}.tar.gz || wget -q https://github.com/cmangos/mangos-classic/archive/refs/tags/latest.tar.gz -O ${cmangos_name}.tar.gz
 test -d ${cmangos_name} || mkdir ${cmangos_name}
 test -f ${cmangos_name}/README.md || tar xfz ${cmangos_name}.tar.gz -C ${cmangos_name} --strip-components 1
 test -d ${cmangos_name}/build || mkdir -p ${cmangos_name}/build
@@ -165,7 +165,7 @@ cd -
 
 # Database files
 echo "Downloading database setup files"
-test -f classic-db-${database_version}.tar.gz || wget https://github.com/cmangos/classic-db/archive/refs/tags/${database_version}.tar.gz -O classic-db-${database_version}.tar.gz
+test -f classic-db-${database_version}.tar.gz || wget -q https://github.com/cmangos/classic-db/archive/refs/tags/${database_version}.tar.gz -O classic-db-${database_version}.tar.gz
 test -d classic-db-${database_version} || tar xfz classic-db-${database_version}.tar.gz
 test -d classic-db-${database_version}/.github && rm -rf classic-db-${database_version}/.github
 mkdir -p ${tmp_install_prefix}${global_prefix}/cmangos/etc/sql
