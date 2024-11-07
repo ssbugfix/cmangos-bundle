@@ -16,5 +16,5 @@ config etc/default/cmangos.new
 
 id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr/sbin/useradd -r -s /sbin/nologin -g daemon -d /opt/cmangos-bundle/cmangos cmangos)
 
-chown -R nginx:daemon "/var/log/cmangos"
-chown -R nginx:daemon "/var/run/cmangos"
+chown -R cmangos:daemon "/var/log/cmangos"
+chown -R cmangos:daemon "/var/run/cmangos"

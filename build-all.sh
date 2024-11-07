@@ -1,14 +1,13 @@
 #!/bin/sh
 
 # TODO
-# * disable man for openssl
 # * add db content
 # /TODO
 
 #set -o pipefail
 
 global_prefix="/opt/cmangos-bundle"
-tmp_install_prefix="/tmp/install"
+tmp_install_prefix="/tmp/cmangos-install"
 boost_version="1_79_0"
 cmake_version="3.23.2"
 openssl_version="3.4.0"
@@ -28,6 +27,7 @@ log_file="build-all.log"
 work_dir=$(pwd)
 > ${work_dir}/${log_file}
 
+# got my compiler from https://jwakely.github.io/pkg-gcc-latest/, converted using deb2tgz and installed into system"
 echo "Checking compiler presence and version"
 gcc_compiler_not_found="no"
 test -x ${gcc_compiler} || gcc_compiler_not_found="yes"
@@ -83,6 +83,8 @@ echo "Booststrapping boost"
 ./bootstrap.sh --prefix=${global_prefix}/boost >> ${work_dir}/${log_file} 2>&1
 echo "Compiling and installing boost to temporary location"
 ./b2 --prefix=${tmp_install_prefix}${global_prefix}/boost install >> ${work_dir}/${log_file} 2>&1
+rm -rf ${tmp_install_prefix}${global_prefix}/boost/include
+rm -rf ${tmp_install_prefix}${global_prefix}/boost/lib/cmake
 cd -
 
 
@@ -105,6 +107,8 @@ echo "Compiling openssl"
 make >> ${work_dir}/${log_file} 2>&1
 echo "Installing openssl to temporary location"
 make DESTDIR=${tmp_install_prefix} install >> ${work_dir}/${log_file} 2>&1
+rm -rf ${tmp_install_prefix}${global_prefix}/openssl/share/man
+rm -rf ${tmp_install_prefix}${global_prefix}/openssl/share/doc
 cd -
 
 
@@ -138,11 +142,11 @@ CXX=/opt/gcc-latest/bin/g++ \
 	-DBoost_NO_BOOST_CMAKE=TRUE \
 	-Wno-dev \
 	../ >> ${work_dir}/${log_file} 2>&1
-echo "Compinling cmangos using ${gcc_compiler} and openssl-${openssl_version} using cmake-${cmake_version}"
+echo "Compinling cmangos using ${gcc_compiler}, openssl-${openssl_version}, boost-${boost_version} and cmake-${cmake_version}"
 make -j $(grep -c ^processor /proc/cpuinfo) >> ${work_dir}/${log_file} 2>&1  
 
 echo "Installing cmangos to temporary location"
-make DESTDIR=${tmp_install_prefix}${global_prefix}/cmangos install >> ${work_dir}/${log_file} 2>&1 
+make DESTDIR=${tmp_install_prefix} install >> ${work_dir}/${log_file} 2>&1 
 
 echo "Adding acustom content"
 mkdir -p ${tmp_install_prefix}/var/log/cmangos 
@@ -153,15 +157,15 @@ mkdir -p ${tmp_install_prefix}/data
 mkdir -p ${tmp_install_prefix}/install
 cat ${work_dir}/etc-default-cmangos > ${tmp_install_prefix}/etc/default/cmangos.new
 sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
-sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/mangosd.pid"|' -i ${tmp_intsall_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
+sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/mangosd.pid"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
 sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/realmd.conf.dist
-sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/realmd.pid"|' -i ${tmp_intsall_prefix}${global_prefix}/cmangos/etc/realmd.conf.dist
+sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/realmd.pid"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/realmd.conf.dist
 sed -e 's|^DataDir = "."|DataDir = "/opt/cmangos-bundle/cmangos/data"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
 install -m 755 ${work_dir}/rc.mangosd.in ${tmp_install_prefix}/etc/rc.d/rc.mangosd.new
 install -m 755 ${work_dir}/rc.realmd.in ${tmp_install_prefix}/etc/rc.d/rc.realmd.new
 install -m 0700 ${work_dir}/doinst.sh.in ${tmp_install_prefix}/install/doinst.sh
 install -m 0644 ${work_dir}/slack-desc ${tmp_install_prefix}/install/slack-desc
-cd -
+cd ${work_dir}/build
 
 # Database files
 echo "Downloading database setup files"
@@ -169,12 +173,17 @@ test -f classic-db-${database_version}.tar.gz || wget -q https://github.com/cman
 test -d classic-db-${database_version} || tar xfz classic-db-${database_version}.tar.gz
 test -d classic-db-${database_version}/.github && rm -rf classic-db-${database_version}/.github
 mkdir -p ${tmp_install_prefix}${global_prefix}/cmangos/etc/sql
-cp -r classic-db-${database_version}/* ${tmp_intsall_prefix}${global_prefix}/cmangos/etc/sql/
+cp -r classic-db-${database_version}/* ${tmp_install_prefix}${global_prefix}/cmangos/etc/sql/
+
+# strip binaries
+echo "Stripping binaries"
+find "${tmp_install_prefix}${global_prefix}/" | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip -v --strip-unneeded 2> /dev/null
+find "${tmp_install_prefix}${global_prefix}/" | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip -v --strip-unneeded 2> /dev/null
 
 cd ${tmp_install_prefix}
 echo "Creating package"
 echo "Running privileged actions, need password"
-sudo chown -R root:root ${tmp_install_prefix}${global_prefix}
+sudo chown -R root:root ${tmp_install_prefix}
 sudo /sbin/makepkg -l y -c n --remove-tmp-rpaths --remove-rpaths ${work_dir}/${dotted_cmangos_name}-x86_64-1.txz
 cd -
 echo "All done"
