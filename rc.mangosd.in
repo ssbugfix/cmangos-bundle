@@ -10,8 +10,8 @@ mangosd_start() {
   test -d ${PREFIX}/data/Buildings -a -d ${PREFIX}/data/Cameras -a -d ${PREFIX}/data/dbc -a -d ${PREFIX}/data/maps -a -d ${PREFIX}/data/mmaps -a -d ${PREFIX}/data/vmaps && init_done=1
   if [ ${init_done} -eq 1 ]
   then
-	echo -n "Starting mangos daemon:  /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS}"
- 	su -l -c "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS}" ${USER}
+	echo -n "Starting mangosd daemon:  /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS}"
+ 	sudo -u ${USER} LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS} > /dev/null 2>&1 &
 	echo
   else
 	echo "Cannot run server, data need to be extracted first. Use '${0} extract'"

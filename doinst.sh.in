@@ -18,4 +18,5 @@ id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr
 
 chown -R cmangos:daemon "/var/log/cmangos"
 chown -R cmangos:daemon "/var/run/cmangos"
-
+chown cmangos:daemon "/opt/cmangos-bundle/cmangos/etc/*.{conf,dist}"
+chmod 0640 "/opt/cmangos-bundle/cmangos/etc/*.{conf,dist}"

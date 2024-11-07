@@ -6,8 +6,8 @@
 
 # Start realmd:
 realmd_start() {
-  echo -n "Starting mangos daemon:  /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS}"
-  su -l -c "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS}" ${USER}
+  echo -n "Starting realmd daemon:  /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS}"
+  sudo -u ${USER} LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS} > /dev/null 2>&1 &
   echo
 }
 

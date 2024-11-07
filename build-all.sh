@@ -146,6 +146,7 @@ CC=/opt/gcc-latest/bin/gcc \
 CXX=/opt/gcc-latest/bin/g++ \
 ../../cmake-${cmake_version}-linux-x86_64/bin/cmake \
 	-DCMAKE_INSTALL_PREFIX=${global_prefix}/cmangos \
+	-DSYSCONFDIR=${global_prefix}/etc \
 	-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=1 \
 	-DBUILD_METRICS=1 \
 	-DPCH=1 \
