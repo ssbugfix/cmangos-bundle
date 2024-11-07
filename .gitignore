@@ -1,2 +1,3 @@
-build-all.log
+*.log
 build
+*.txz

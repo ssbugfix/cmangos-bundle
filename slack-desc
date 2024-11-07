@@ -5,9 +5,11 @@
 # exactly 11 lines for the formatting to be correct.  It's also customary to
 # leave one space after the ':'.
 
-     |-----handy-ruler------------------------------------------------------|
-nginx: cmangos-bundle
-nginx:
-nginx: C(ontinued)-MaNGOS (Classic fork) is about:
-nginx: Doing WoW-Emulation Right!  
-nginx: 
+               |-----handy-ruler------------------------------------------------------|
+cmangos-classic: cmangos-classic
+cmangos-classic:
+cmangos-classic: C(ontinued)-MaNGOS (Classic fork) is about:
+cmangos-classic: Doing WoW-Emulation Right!
+cmangos-classic: 
+cmangos-classic: Contains bundle of libraries and server itself.
+cmangos-classic: 
