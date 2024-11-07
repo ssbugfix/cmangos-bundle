@@ -1,0 +1,59 @@
+#!/bin/sh
+# Start/stop/restart realmd.
+
+# Load options from /etc/default/cmangos:
+. /etc/default/cmangos
+
+# Start realmd:
+realmd_start() {
+  echo -n "Starting mangos daemon:  /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS}"
+  su -l -c "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/realmd ${REALMD_OPTS}" ${USER}
+  echo
+}
+
+# Stop realmd:
+realmd_stop() {
+  echo -n "Stopping realmd daemon... "
+  if [ -r /var/run/cmangos/realmd.pid ]; then
+    echo -n "(PID $(cat /var/run/cmangos/realmd.pid))"
+    kill -HUP $(cat /var/run/cmangos/realmd.pid)
+    rm -f /var/run/cmangos/realmd.pid
+  else
+    killall -q realmd
+  fi
+  echo
+}
+
+# Restart realmd:
+realmd_restart() {
+  realmd_stop
+  sleep 1
+  realmd_start
+}
+
+# Check if realmd is running
+realmd_status() {
+  if [ -e /var/run/cmangos/realmd.pid ]; then
+    echo "realmd is running as PID $(cat /var/run/cmangos/realmd.pid)."
+  else 
+    echo "realmd is stopped."
+    exit 1
+  fi
+}
+
+case "$1" in
+'start')
+  realmd_start
+  ;;
+'stop')
+  realmd_stop
+  ;;
+'restart')
+  realmd_restart
+  ;;
+'status')
+  realmd_status
+  ;;
+*)
+  echo "usage $0 start|stop|restart|status"
+esac

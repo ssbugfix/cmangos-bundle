@@ -1,0 +1,20 @@
+config() {
+  NEW=$1
+  OLD="`dirname $NEW`/`basename $NEW .new`"
+  if [ ! -r $OLD ]
+  then
+    mv $NEW $OLD
+  elif [ "`cat $OLD | md5sum`" = "`cat $NEW | md5sum`" ]
+  then
+    rm $NEW
+  fi
+}
+
+config etc/rc.d/rc.mandosd.new
+config etc/rc.d/rc.realmd.new
+config etc/default/cmangos.new
+
+id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr/sbin/useradd -r -s /sbin/nologin -g daemon -d /opt/cmangos-bundle/cmangos cmangos)
+
+chown -R nginx:daemon "/var/log/cmangos"
+chown -R nginx:daemon "/var/run/cmangos"

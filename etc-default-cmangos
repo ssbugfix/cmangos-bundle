@@ -1,0 +1,7 @@
+LD_LIBRARY_PATH=/opt/gcc-latest/lib64:/opt/cmangos-bundle/openssl/lib64:${LD_LIBRARY_PATH}
+
+USER=cmangos
+PREFIX=/opt/cmangos-bundle/cmangos
+
+MANGOSD_OPTS="-a /opt/cmangos-bundle/cmangos/etc/ahbot.conf -c /opt/cmangos-bundle/cmangos/etc/mangosd.conf"
+REALMD_OPTS="-c /opt/cmangos-bundle/cmangos/etc/realmd.conf"

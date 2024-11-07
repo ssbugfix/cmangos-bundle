@@ -1,0 +1,92 @@
+#!/bin/sh
+# Start/stop/restart mangosd.
+
+# Load options from /etc/default/mangosd:
+. /etc/default/cmangos
+
+# Start mangosd:
+mangosd_start() {
+  init_done=0
+  test -d ${PREFIX}/data/Buildings -a -d ${PREFIX}/data/Cameras -a -d ${PREFIX}/data/dbc -a -d ${PREFIX}/data/maps -a -d ${PREFIX}/data/mmaps -a -d ${PREFIX}/data/vmaps && init_done=1
+  if [ ${init_done} -eq 1 ]
+  then
+	echo -n "Starting mangos daemon:  /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS}"
+ 	su -l -c "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} /opt/cmangos-bundle/cmangos/bin/mangosd ${MANGOSD_OPTS}" ${USER}
+	echo
+  else
+	echo "Cannot run server, data need to be extracted first. Use '${0} extract'"
+  fi
+}
+
+# Stop mangosd:
+mangosd_stop() {
+  echo -n "Stopping mangosd daemon... "
+  if [ -r /var/run/cmangos/mangosd.pid ]; then
+    echo -n "(PID $(cat /var/run/cmangos/mangosd.pid))"
+    kill -HUP $(cat /var/run/cmangos/mangosd.pid)
+    rm -f /var/run/cmangos/mangosd.pid
+  else
+    killall -q mangosd
+  fi
+  echo
+}
+
+# Restart mangosd:
+mangosd_restart() {
+  mangosd_stop
+  sleep 1
+  mangosd_start
+}
+
+# Check if mangosd is running
+mangosd_status() {
+  if [ -e /var/run/cmangos/mangosd.pid ]; then
+    echo "mangosd is running as PID $(cat /var/run/cmangos/mangosd.pid)."
+  else 
+    echo "mangosd is stopped."
+    exit 1
+  fi
+}
+
+# Extract datafiles
+mangosd_extract() {
+	read -p "Game client data path: "
+	client_dir=${REPLY}
+	data_dir=$(grep ^DataDir /opt/cmangos-bundle/cmangos/etc/mangosd.conf | awk '{print $NF}')
+	cd /opt/cmangos-bundle/cmangos/bin/tools
+	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
+	./ExtractResources.sh a "${client_dir}" "${data_dir}"
+	result=${?}
+	cd -
+	if [ ${result} -eq 0 ]
+	then
+		echo "OK"
+	else
+		echo "Fail"
+	fi
+	echo
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	echo "Do not forget to initialize database!"
+	echo "See https://github.com/cmangos/issues/wiki/Installation-Instructions for information"
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	echo
+}
+
+case "$1" in
+'start')
+  mangosd_start
+  ;;
+'stop')
+  mangosd_stop
+  ;;
+'restart')
+  mangosd_restart
+  ;;
+'status')
+  mangosd_status
+  ;;
+'extract')
+  mangosd_extract
+*)
+  echo "usage $0 start|stop|restart|status"
+esac
