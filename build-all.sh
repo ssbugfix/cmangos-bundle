@@ -63,15 +63,8 @@ cd build
 # see boost vs cmake compatibility table
 # https://github.com/cmangos/issues/wiki/CMake-to-Boost-Version-Compatibility-Table
 
-echo -n "Checking temporary install directory presence "
-if [ ! -w ${tmp_install_prefix} ]
-then
-	echo "No write access to ${tmp_install_prefix}"
-	exit 1
-else
-	echo "OK"
-fi
-
+echo -n "Checking temporary install directory presence - "
+test -d ${tmp_install_prefix} || mkdir ${tmp_install_prefix}
 
 # build boost
 
@@ -81,10 +74,20 @@ test -d boost_${boost_version} || tar xfj boost_${boost_version}.tar.bz2
 cd boost_${boost_version}
 echo "Booststrapping boost"
 ./bootstrap.sh --prefix=${global_prefix}/boost >> ${work_dir}/${log_file} 2>&1
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 echo "Compiling and installing boost to temporary location"
 ./b2 --prefix=${tmp_install_prefix}${global_prefix}/boost install >> ${work_dir}/${log_file} 2>&1
-rm -rf ${tmp_install_prefix}${global_prefix}/boost/include
-rm -rf ${tmp_install_prefix}${global_prefix}/boost/lib/cmake
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 cd -
 
 
@@ -102,13 +105,29 @@ test -f openssl-${openssl_version}.tar.gz || wget -q https://github.com/openssl/
 test -d openssl-${openssl_version} || tar xfz openssl-${openssl_version}.tar.gz
 cd openssl-${openssl_version}
 echo "Configuring openssl"
-./Configure --prefix=${global_prefix}/openssl
+./Configure --prefix=${global_prefix}/openssl > ${work_dir}/${log_file} 2>&1
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 echo "Compiling openssl"
 make >> ${work_dir}/${log_file} 2>&1
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 echo "Installing openssl to temporary location"
 make DESTDIR=${tmp_install_prefix} install >> ${work_dir}/${log_file} 2>&1
-rm -rf ${tmp_install_prefix}${global_prefix}/openssl/share/man
-rm -rf ${tmp_install_prefix}${global_prefix}/openssl/share/doc
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 cd -
 
 
@@ -142,18 +161,36 @@ CXX=/opt/gcc-latest/bin/g++ \
 	-DBoost_NO_BOOST_CMAKE=TRUE \
 	-Wno-dev \
 	../ >> ${work_dir}/${log_file} 2>&1
-echo "Compinling cmangos using ${gcc_compiler}, openssl-${openssl_version}, boost-${boost_version} and cmake-${cmake_version}"
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
+echo "Compiling cmangos using ${gcc_compiler}, openssl-${openssl_version}, boost-${boost_version} and cmake-${cmake_version}"
 make -j $(grep -c ^processor /proc/cpuinfo) >> ${work_dir}/${log_file} 2>&1  
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 
 echo "Installing cmangos to temporary location"
 make DESTDIR=${tmp_install_prefix} install >> ${work_dir}/${log_file} 2>&1 
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 
 echo "Adding acustom content"
 mkdir -p ${tmp_install_prefix}/var/log/cmangos 
 mkdir -p ${tmp_install_prefix}/var/run/cmangos 
 mkdir -p ${tmp_install_prefix}/etc/default
 mkdir -p ${tmp_install_prefix}/etc/rc.d
-mkdir -p ${tmp_install_prefix}/data
+mkdir -p ${tmp_install_prefix}/${global_prefix}/cmangos/data
 mkdir -p ${tmp_install_prefix}/install
 cat ${work_dir}/etc-default-cmangos > ${tmp_install_prefix}/etc/default/cmangos.new
 sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
@@ -173,7 +210,20 @@ test -f classic-db-${database_version}.tar.gz || wget -q https://github.com/cman
 test -d classic-db-${database_version} || tar xfz classic-db-${database_version}.tar.gz
 test -d classic-db-${database_version}/.github && rm -rf classic-db-${database_version}/.github
 mkdir -p ${tmp_install_prefix}${global_prefix}/cmangos/etc/sql
+# cleanup some unneeded shit
+rm -rf ${tmp_install_prefix}${global_prefix}/boost/include
+rm -rf ${tmp_install_prefix}${global_prefix}/boost/lib/cmake
+rm -rf ${tmp_install_prefix}${global_prefix}/openssl/share/
+rm -rf ${tmp_install_prefix}${global_prefix}/openssl/include
+
+# copy database stuff
 cp -r classic-db-${database_version}/* ${tmp_install_prefix}${global_prefix}/cmangos/etc/sql/
+result=${?}
+if [ ${result} -ne 0 ]
+then
+	echo "Shit happened, see ${work_dir}/${log_file}"
+	exit 1
+fi
 
 # strip binaries
 echo "Stripping binaries"
@@ -185,5 +235,5 @@ echo "Creating package"
 echo "Running privileged actions, need password"
 sudo chown -R root:root ${tmp_install_prefix}
 sudo /sbin/makepkg -l y -c n --remove-tmp-rpaths --remove-rpaths ${work_dir}/${dotted_cmangos_name}-x86_64-1.txz
-cd -
+cd ${work_dir}
 echo "All done"

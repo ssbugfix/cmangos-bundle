@@ -10,7 +10,7 @@ config() {
   fi
 }
 
-config etc/rc.d/rc.mandosd.new
+config etc/rc.d/rc.mangosd.new
 config etc/rc.d/rc.realmd.new
 config etc/default/cmangos.new
 
@@ -18,3 +18,4 @@ id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr
 
 chown -R cmangos:daemon "/var/log/cmangos"
 chown -R cmangos:daemon "/var/run/cmangos"
+
