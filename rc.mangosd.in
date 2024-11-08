@@ -87,6 +87,7 @@ case "$1" in
   ;;
 'extract')
   mangosd_extract
+  ;;
 *)
   echo "usage $0 start|stop|restart|status"
 esac
