@@ -1,12 +1,14 @@
 #!/bin/sh
 
 # TODO
-# * add db content
+# * add db content to rc file
+# * some config file searched strongly in ../etc/ 
+# * add logrotate
 # /TODO
 
 #set -o pipefail
 
-global_prefix="/opt/cmangos-bundle"
+global_prefix="/opt/cmangos-classic-bundle"
 tmp_install_prefix="/tmp/cmangos-install"
 boost_version="1_79_0"
 cmake_version="3.23.2"
@@ -198,7 +200,7 @@ sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}$
 sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/mangosd.pid"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
 sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/realmd.conf.dist
 sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/realmd.pid"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/realmd.conf.dist
-sed -e 's|^DataDir = "."|DataDir = "/opt/cmangos-bundle/cmangos/data"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
+sed -e 's|^DataDir = "."|DataDir = "/opt/cmangos-classic-bundle/cmangos/data"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
 install -m 755 ${work_dir}/rc.mangosd.in ${tmp_install_prefix}/etc/rc.d/rc.mangosd.new
 install -m 755 ${work_dir}/rc.realmd.in ${tmp_install_prefix}/etc/rc.d/rc.realmd.new
 install -m 0700 ${work_dir}/doinst.sh.in ${tmp_install_prefix}/install/doinst.sh

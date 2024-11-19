@@ -14,9 +14,9 @@ config etc/rc.d/rc.mangosd.new
 config etc/rc.d/rc.realmd.new
 config etc/default/cmangos.new
 
-id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr/sbin/useradd -r -s /sbin/nologin -g daemon -d /opt/cmangos-bundle/cmangos cmangos)
+id cmangos > /dev/null 2>&1 || (echo "User cmangos not found, creating.." ; /usr/sbin/useradd -r -s /sbin/nologin -g daemon -d /opt/cmangos-classic-bundle/cmangos cmangos)
 
 chown -R cmangos:daemon /var/log/cmangos
 chown -R cmangos:daemon /var/run/cmangos
-chown cmangos:daemon /opt/cmangos-bundle/cmangos/etc/*.{conf,dist}
-chmod 0640 /opt/cmangos-bundle/cmangos/etc/*.{conf,dist}
+chown cmangos:daemon /opt/cmangos-classic-bundle/cmangos/etc/*.conf{,dist}
+chmod 0640 /opt/cmangos-classic-bundle/cmangos/etc/*.conf{,dist}
