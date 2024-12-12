@@ -1,0 +1,8 @@
+/var/log/cmangos/Char.log /var/log/cmangos/DBErrors.log /var/log/cmangos/EventAIErrors.log /var/log/cmangos/Realmd.log /var/log/cmangos/SD2Errors.log /var/log/cmangos/Server_????-??-??_??-??-??.log {
+  rotate 30
+  missingok
+  compress
+  daily
+  dateext
+  copytruncate
+}

@@ -195,6 +195,7 @@ mkdir -p ${tmp_install_prefix}/etc/default
 mkdir -p ${tmp_install_prefix}/etc/rc.d
 mkdir -p ${tmp_install_prefix}/${global_prefix}/cmangos/data
 mkdir -p ${tmp_install_prefix}/install
+mkdir -p ${tmp_install_prefix}/etc/logrotate.d
 cat ${work_dir}/etc-default-cmangos > ${tmp_install_prefix}/etc/default/cmangos.new
 sed -e 's|^LogsDir = ""|LogsDir = "/var/log/cmangos"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
 sed -e 's|^PidFile = ""|PidFile = "/var/run/cmangos/mangosd.pid"|' -i ${tmp_install_prefix}${global_prefix}/cmangos/etc/mangosd.conf.dist
@@ -205,6 +206,7 @@ install -m 755 ${work_dir}/rc.mangosd.in ${tmp_install_prefix}/etc/rc.d/rc.mango
 install -m 755 ${work_dir}/rc.realmd.in ${tmp_install_prefix}/etc/rc.d/rc.realmd.new
 install -m 0700 ${work_dir}/doinst.sh.in ${tmp_install_prefix}/install/doinst.sh
 install -m 0644 ${work_dir}/slack-desc ${tmp_install_prefix}/install/slack-desc
+install -m 0644 ${work_dir}/logrotate ${tmp_install_prefix}/etc/logrotate.d/cmangos
 cd ${work_dir}/build
 
 # Database files
