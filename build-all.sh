@@ -7,7 +7,7 @@
 
 #set -o pipefail
 
-global_prefix="/opt/cmangos-classic-bundle"
+global_prefix="/opt/cmangos-bundle"
 tmp_install_prefix="/tmp/cmangos-install"
 boost_version="1_79_0"
 cmake_version="3.23.2"
