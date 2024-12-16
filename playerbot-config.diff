@@ -1,0 +1,12 @@
+--- src/mangosd/Main.cpp.orig	2024-12-13 19:47:27.629457719 +0300
++++ src/mangosd/Main.cpp	2024-12-13 19:56:51.423137910 +0300
+@@ -74,9 +74,7 @@
+     desc.add_options()
+     ("ahbot,a", boost::program_options::value<std::string>(&auctionBotConfig), "ahbot configuration file")
+     ("config,c", boost::program_options::value<std::string>(&configFile)->default_value(_MANGOSD_CONFIG), "configuration file")
+-#ifdef BUILD_DEPRECATED_PLAYERBOT
+     ("playerbot,p", boost::program_options::value<std::string>(&playerBotConfig)->default_value(_D_PLAYERBOT_CONFIG), "playerbot configuration file")
+-#endif
+     ("help,h", "prints usage")
+     ("version,v", "print version and exit")
+ #ifdef _WIN32

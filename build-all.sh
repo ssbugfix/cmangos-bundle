@@ -3,7 +3,6 @@
 # TODO
 # * add db content to rc file
 # * some config file searched strongly in ../etc/ 
-# * add logrotate
 # /TODO
 
 #set -o pipefail
@@ -137,10 +136,12 @@ cd -
 
 echo "Downloading cmangos"
 test -f ${cmangos_name}.tar.gz || wget -q https://github.com/cmangos/mangos-classic/archive/refs/tags/latest.tar.gz -O ${cmangos_name}.tar.gz
+test -z ${cmangos_name} || rm -rf ${cmangos_name}
 test -d ${cmangos_name} || mkdir ${cmangos_name}
 test -f ${cmangos_name}/README.md || tar xfz ${cmangos_name}.tar.gz -C ${cmangos_name} --strip-components 1
 test -d ${cmangos_name}/build || mkdir -p ${cmangos_name}/build
 cd ${cmangos_name}/build
+patch -d ../ -p0 < ${work_dir}/playerbot-config.diff
 
 # build all together
 echo "Configuring cmangos"
